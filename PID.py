@@ -40,10 +40,10 @@ class PID:
         return output
 
 
-def main(regler, val, goal):
+def main(regler, val, goal, iterations):
     val_list = []
     inc_list = []
-    for i in range(100):
+    for i in range(iterations):
         inc = regler.run(goal, val)
         print("val:", "{:7.3f}".format(val), " inc:", "{:7.3f}".format(inc))
         val_list.append(val)
@@ -55,5 +55,6 @@ def main(regler, val, goal):
 
 
 if __name__ == "__main__":
+
     pid = PID(0.1, 100, -100, 0.1, 0.01, 0.5)
-    main(pid, 20, 0)
+    main(pid, 20, 0, 100)
