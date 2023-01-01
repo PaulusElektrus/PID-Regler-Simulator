@@ -40,7 +40,7 @@ class PID:
         return output
 
 
-def main(regler, val, goal, iterations):
+def main(regler, val, goal, iterations, flet=False):
     val_list = []
     inc_list = []
     for i in range(iterations):
@@ -49,9 +49,19 @@ def main(regler, val, goal, iterations):
         val_list.append(val)
         inc_list.append(inc)
         val += inc
-    plt.plot(val_list)
-    plt.plot(inc_list)
-    plt.show()
+
+    if flet == False:
+        plt.plot(val_list)
+        plt.plot(inc_list)
+        plt.show()
+    else:
+        return val_list, inc_list
+
+
+def flet_api(start, in_goal, iterations, dt, max, min, kp, ki, kd):
+    pid = PID(dt, max, min, kp, kd, ki)
+    val, inc = main(pid, start, in_goal, iterations, True)
+    return val, inc
 
 
 if __name__ == "__main__":
