@@ -45,7 +45,7 @@ def main(regler, val, goal, iterations, flet=False):
     inc_list = []
     for i in range(iterations):
         inc = regler.run(goal, val)
-        print("val:", "{:7.3f}".format(val), " inc:", "{:7.3f}".format(inc))
+        # print("val:", "{:7.3f}".format(val), " inc:", "{:7.3f}".format(inc))
         val_list.append(val)
         inc_list.append(inc)
         val += inc

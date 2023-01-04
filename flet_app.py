@@ -11,70 +11,109 @@ import PID
 matplotlib.use("svg")
 
 
+class PIDApp(flet.UserControl):
+    def build(self):
+
+        self.btn_3 = flet.ElevatedButton("Simulieren!", on_click=self.update)
+
+        self.fig, self.ax = plt.subplots()
+        self.chart = MatplotlibChart(self.fig, original_size=True)
+        self.n = 1
+
+        self.start = flet.TextField(
+            label="Startwert", value="20", text_align="right", width=130
+        )
+        self.in_goal = flet.TextField(
+            label="Zielwert", value="0", text_align="right", width=130
+        )
+        self.iterations = flet.TextField(
+            label="Iterationen", value="100", text_align="right", width=130
+        )
+        self.dt = flet.TextField(
+            label="dt (Zeitkonstante)", value="0.1", text_align="right", width=130
+        )
+        self.max = flet.TextField(
+            label="Minimale Regelgröße", value="100", text_align="right", width=130
+        )
+        self.min = flet.TextField(
+            label="Maximale Regelgröße", value="-100", text_align="right", width=130
+        )
+        self.kp = flet.TextField(
+            label="kp (P-Anteil)", value="0.1", text_align="right", width=130
+        )
+        self.ki = flet.TextField(
+            label="ki (I-Anteil)", value="0.5", text_align="right", width=130
+        )
+        self.kd = flet.TextField(
+            label="kd (D-Anteil)", value="0.01", text_align="right", width=130
+        )
+
+        return [
+            flet.Column(
+                controls=[
+                    flet.Row(
+                        controls=[
+                            self.btn_3,
+                            self.start,
+                            self.in_goal,
+                            self.iterations,
+                            self.max,
+                            self.min,
+                            self.kp,
+                            self.ki,
+                            self.kd,
+                            self.dt,
+                        ]
+                    ),
+                    self.chart,
+                ]
+            )
+        ]
+
+    def update(self, e):
+        val, inc = PID.flet_api(
+            float(self.start.value),
+            float(self.in_goal.value),
+            int(self.iterations.value),
+            float(self.dt.value),
+            float(self.max.value),
+            float(self.min.value),
+            float(self.kp.value),
+            float(self.ki.value),
+            float(self.kd.value),
+        )
+        self.ax.plot(val, label="Value " + str(self.n))
+        self.ax.plot(inc, label="Increment " + str(self.n))
+        self.ax.set_xlabel("Iterations")
+        self.ax.set_ylabel("Value & Increment")
+        self.ax.legend()
+        self.ax.grid(True)
+        self.fig.tight_layout()
+        self.chart.update()
+        self.n += 1
+
+
 def main(page: Page):
-    def create(e):
-        val, inc = PID.flet_api(
-            float(start.value),
-            float(in_goal.value),
-            int(iterations.value),
-            float(dt.value),
-            float(max.value),
-            float(min.value),
-            float(kp.value),
-            float(ki.value),
-            float(kd.value),
-        )
-        ax.plot(val)
-        ax.plot(inc)
-        ax.set_xlabel("Iterations")
-        ax.set_ylabel("Value & Increment")
-        ax.grid(True)
-        fig.tight_layout()
-        chart = MatplotlibChart(fig, isolated=True,expand=True)
-        page.add(chart)
-
     def remove(e):
-        page.controls.pop(1)
-        fig, ax = plt.subplots()
-        page.update()    
-        
-    def update(e):
-        val, inc = PID.flet_api(
-            float(start.value),
-            float(in_goal.value),
-            int(iterations.value),
-            float(dt.value),
-            float(max.value),
-            float(min.value),
-            float(kp.value),
-            float(ki.value),
-            float(kd.value),
-        )
-        ax.plot(val)
-        ax.plot(inc)
-        chart.update()  
+        if len(page.controls) <= 2:
+            return
+        else:
+            page.controls.pop()
+            page.update()
 
+    def create(e):
+        app = PIDApp()
+        page.add(app)
+        page.update()
+
+    page.title = "PID App"
+    page.horizontal_alignment = flet.CrossAxisAlignment.CENTER
     btn_1 = flet.ElevatedButton("Erzeugen!", on_click=create)
     btn_2 = flet.ElevatedButton("Löschen!", on_click=remove)
-    btn_3 = flet.ElevatedButton("Update!", on_click=update)
-    
-    fig, ax = plt.subplots()
-
-    start = flet.TextField(label="Startwert", value="20", text_align="right", width=100)
-    in_goal = flet.TextField(label="Zielwert", value="0", text_align="right", width=100)
-    iterations = flet.TextField(
-        label="Iterationen", value="100", text_align="right", width=100
-    )
-    dt = flet.TextField(label="dt", value="0.1", text_align="right", width=100)
-    max = flet.TextField(label="Min", value="100", text_align="right", width=100)
-    min = flet.TextField(label="Max", value="-100", text_align="right", width=100)
-    kp = flet.TextField(label="kp", value="0.1", text_align="right", width=100)
-    ki = flet.TextField(label="ki", value="0.5", text_align="right", width=100)
-    kd = flet.TextField(label="kd", value="0.01", text_align="right", width=100)
-
-    page.add(
-        flet.Row(controls=
-            [btn_1, btn_2, btn_3, start, in_goal, iterations, dt, max, min, kp, ki, kd]))
+    txt = flet.Text(value="Simulieren Sie einen Regler:   ")
+    page.add(flet.Row(controls=[txt, btn_1, btn_2]), flet.Divider())
+    page.update()
 
 
-flet.app(target=main)
+if __name__ == "__main__":
+    flet.app(target=main)
