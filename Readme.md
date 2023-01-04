@@ -14,7 +14,9 @@ and run the program:
 python flet_app.py
 ```
 
-The app will be started in a native OS window.
+The app will be started in a native OS window:
+
+![Screenshot](Screenshot.png)
 
 If you want to run the app as a web app, just replace the last line in flet_app.py with:
 
